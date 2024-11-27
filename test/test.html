@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Management</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Account Management</h1>
+    <div class="form-container">
+      <div class="tabs">
+        <button class="tab active" data-tab="register">Register</button>
+        <button class="tab" data-tab="login">Login</button>
+        <button class="tab" data-tab="verify">Verify OTP</button>
+        <button class="tab" id="logoutTab" style="display: none;">Logout</button>
+      </div>
+
+      <!-- Register Form -->
+      <form id="register" class="form active">
+        <h2>Register</h2>
+        <label for="regEmail">Email:</label>
+        <input type="email" id="regEmail" placeholder="Enter your email" required>
+        
+        <label for="regUsername">Username:</label>
+        <input type="text" id="regUsername" placeholder="Enter your username" required>
+        
+        <label for="regPassword">Password:</label>
+        <input type="password" id="regPassword" placeholder="Enter your password" required>
+        
+        <button type="submit">Register</button>
+      </form>
+
+      <!-- Login Form -->
+      <form id="login" class="form">
+        <h2>Login</h2>
+        <label for="loginEmail">Email:</label>
+        <input type="email" id="loginEmail" placeholder="Enter your email" required>
+        
+        <label for="loginPassword">Password:</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+        
+        <button type="submit">Login</button>
+      </form>
+
+      <!-- Verify OTP Form -->
+      <form id="verify" class="form">
+        <h2>Verify OTP</h2>
+        <label for="otp">Enter OTP:</label>
+        <input type="text" id="otp" placeholder="Enter OTP" required>
+        
+        <button type="submit">Verify</button>
+      </form>
+
+      <!-- Logout Form -->
+      <form id="logout" class="form">
+        <h2>Logout</h2>
+        <div id="profileContainer">
+          <img id="profilePhoto" alt="Profile Photo" style="width: 100px; height: 100px; border-radius: 50%; display: none;">
+          <p id="usernameDisplay"></p>
+        </div>
+        <p>You are logged in. Click below to logout:</p>
+        <button type="button" id="logoutBtn">Logout</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const BASE_URL = 'http://localhost:3000';
+
+    // Switch between forms
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        document.querySelectorAll('.form').forEach(form => form.classList.remove('active'));
+        document.getElementById(target).classList.add('active');
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // Register
+    document.getElementById('register').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('regEmail').value;
+      const username = document.getElementById('regUsername').value;
+      const password = document.getElementById('regPassword').value;
+
+      try {
+        const response = await fetch(`${BASE_URL}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, username, password })
+        });
+
+        const data = await response.json();
+        console.log('Register Response:', data);
+
+        if (response.ok) {
+          alert(data.message);
+          localStorage.setItem('token', data.token);
+          document.getElementById('register').classList.remove('active');
+          document.getElementById('verify').classList.add('active');
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        console.error('Error during registration:', error);
+        alert(error.message || 'An error occurred during registration.');
+      }
+    });
+
+    // Login
+document.getElementById('login').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+
+  try {
+    const response = await fetch(`${BASE_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+    console.log('Login Response:', data);
+
+    if (response.ok) {
+      alert(data.message); // Menampilkan pesan bahwa OTP dikirim ke email
+      localStorage.setItem('token', data.token);
+      document.getElementById('login').classList.remove('active');
+      document.getElementById('verify').classList.add('active');
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (error) {
+    console.error('Error during login:', error);
+    alert(error.message || 'An error occurred during login.');
+  }
+});
+
+
+    // Verify OTP
+    document.getElementById('verify').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const otp = document.getElementById('otp').value;
+      const token = localStorage.getItem('token');
+
+      try {
+        const response = await fetch(`${BASE_URL}/verify-otp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ otp })
+        });
+
+        const data = await response.json();
+        console.log('OTP Verification Response:', data);
+
+        if (response.ok) {
+          alert('OTP verified successfully!');
+          localStorage.setItem('profilePhoto', data.profile_photo);
+          localStorage.setItem('username', data.username);
+          document.getElementById('verify').classList.remove('active');
+          document.getElementById('logout').classList.add('active');
+          document.getElementById('logoutTab').style.display = 'block';
+
+          // Show profile photo and username
+          const profilePhotoElement = document.getElementById('profilePhoto');
+          const usernameDisplay = document.getElementById('usernameDisplay');
+          const profilePhoto = data.profile_photo || '';
+          
+          profilePhotoElement.src = profilePhoto;
+          profilePhotoElement.style.display = profilePhoto ? 'block' : 'none';
+          
+          usernameDisplay.textContent = `Welcome, ${data.username}`;
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        console.error('Error during OTP verification:', error);
+        alert(error.message || 'An error occurred during OTP verification.');
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      const token = localStorage.getItem('token');
+
+      try {
+        const response = await fetch(`${BASE_URL}/logout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+        console.log('Logout Response:', data);
+
+        if (response.ok) {
+          alert('Logout successful!');
+          localStorage.removeItem('token');
+          localStorage.removeItem('profilePhoto');
+          localStorage.removeItem('username');
+          document.getElementById('logout').classList.remove('active');
+          document.getElementById('register').classList.add('active');
+          document.getElementById('logoutTab').style.display = 'none';
+
+          // Hide profile photo
+          const profilePhotoElement = document.getElementById('profilePhoto');
+          profilePhotoElement.style.display = 'none';
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        console.error('Error during logout:', error);
+        alert(error.message || 'An error occurred during logout.');
+      }
+    });
+
+  </script>
+</body>
+</html>

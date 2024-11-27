@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Management</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Account Management</h1>
+    <div class="form-container">
+      <div class="tabs">
+        <button class="tab active" data-tab="register">Register</button>
+        <button class="tab" data-tab="login">Login</button>
+        <button class="tab" data-tab="change">Change Username/Password</button>
+      </div>
+
+      <!-- Register Form -->
+      <form id="register" class="form active">
+        <h2>Register</h2>
+        <label for="regEmail">Email:</label>
+        <input type="email" id="regEmail" placeholder="Enter your email" required>
+        
+        <label for="regUsername">Username:</label>
+        <input type="text" id="regUsername" placeholder="Enter your username" required>
+        
+        <label for="regPassword">Password:</label>
+        <input type="password" id="regPassword" placeholder="Enter your password" required>
+        
+        <button type="submit">Register</button>
+      </form>
+
+      <!-- Login Form -->
+      <form id="login" class="form">
+        <h2>Login</h2>
+        <label for="loginEmail">Email:</label>
+        <input type="email" id="loginEmail" placeholder="Enter your email" required>
+        
+        <label for="loginPassword">Password:</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+        
+        <button type="submit">Login</button>
+      </form>
+
+      <!-- Change Form -->
+      <form id="change" class="form">
+        <h2>Change Username/Password</h2>
+        <div id="step1" class="change-step active">
+          <label for="changeEmail">Email:</label>
+          <input type="email" id="changeEmail" placeholder="Enter your email" required>
+
+          <label for="changePassword">Password:</label>
+          <input type="password" id="changePassword" placeholder="Enter your password" required>
+
+          <button type="button" class="next-step">Next</button>
+        </div>
+
+        <div id="step2" class="change-step">
+          <label for="changeOtp">Enter OTP:</label>
+          <input type="text" id="changeOtp" placeholder="Enter OTP" required>
+
+          <button type="button" class="next-step">Next</button>
+        </div>
+
+        <div id="step3" class="change-step">
+          <label for="newUsername">New Username:</label>
+          <input type="text" id="newUsername" placeholder="Enter new username">
+          
+          <label for="newPassword">New Password:</label>
+          <input type="password" id="newPassword" placeholder="Enter new password">
+          
+          <button type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
