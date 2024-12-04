@@ -9,7 +9,10 @@ const sendOTPEmail = (to, otp) => {
     text: `Your OTP code is: ${otp}`,
   };
 
-  sgMail.send(msg).catch(error => console.error('Error sending OTP', error));
+  return sgMail.send(msg).catch(error => {
+    console.error('Error sending OTP', error);
+    throw new Error('Error sending OTP email');
+  });
 };
 
 module.exports = {

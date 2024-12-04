@@ -4,7 +4,9 @@ const dotenv = require('dotenv');
 const changeController = require('./controllers/changeController');
 const userController = require('./controllers/userController');
 const otpController = require('./controllers/otpController');
-const logoutController = require('./controllers/logoutController'); // Import controller logout
+const logoutController = require('./controllers/logoutController'); 
+const userRouter = require('./routes/userRouter');  // Mengimpor userRouter
+const { getArticles } = require('./controllers/articlesController');  // Pastikan path sudah benar
 const authenticateJWT = require('./middleware/authenticateJWT');
 const { sendOTPEmail } = require('./services/emailService');
 
@@ -14,20 +16,26 @@ const app = express();
 
 // Gunakan CORS dengan konfigurasi khusus
 app.use(cors({
-  origin: 'http://127.0.0.1:5500',  // Ganti dengan origin frontend kamu
-  methods: ['POST', 'PUT'],         // Hanya mengizinkan POST dan PUT
-  credentials: true                 // Jika perlu mengirim cookies/auth headers
+  origin: 'http://localhost:3001', 
+  methods: ['POST', 'GET', 'PUT'],
+  credentials: true
 }));
 
 app.use(express.json()); // Untuk parsing JSON body
 
 // Routes
+app.use('/api', authenticateJWT, userRouter); // Menggunakan router untuk mendapatkan data user
+
+// Routes lainnya
 app.post('/register', userController.register);
 app.post('/login', userController.login);
-app.post('/verify-otp', authenticateJWT, otpController.verifyOtp);
-app.post('/change-username', authenticateJWT, changeController.changeUsername);
-app.post('/change-password', authenticateJWT, changeController.changePassword);
+app.post('/verify-otp', otpController.verifyOtp);
 app.post('/logout', authenticateJWT, logoutController.logout);
+
+app.put('/change-username', authenticateJWT, changeController.changeUsername);
+app.put('/change-password', authenticateJWT, changeController.changePassword);
+
+app.get('/articles', getArticles);
 
 // Menjalankan server
 const PORT = process.env.PORT || 3000;

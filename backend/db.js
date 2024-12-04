@@ -1,7 +1,6 @@
 const mysql = require('mysql2');
 require('dotenv').config();  // Memuat variabel lingkungan dari .env
 
-// Membuat koneksi ke database MySQL menggunakan variabel environment
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -9,7 +8,9 @@ const connection = mysql.createConnection({
   database: process.env.DB_NAME,
 });
 
-// Cek koneksi
+// Ubah ke promise-based API
+connection.promise();
+
 connection.connect((err) => {
   if (err) {
     console.error('Error connecting to the database:', err);
